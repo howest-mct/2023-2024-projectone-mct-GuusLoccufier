@@ -1,12 +1,12 @@
 # Projectgegevens
 
-**VOORNAAM NAAM:** A B
+**VOORNAAM NAAM:** GUUS LOCCUFIER
 
-**Sparringpartner:** C D
+**Sparringpartner:** Jakub Tyszkiewicz
 
-**Projectsamenvatting in max 10 woorden:** E
+**Projectsamenvatting in max 10 woorden:** An interactive airsoft shooting and training range.
 
-**Projecttitel:** F
+**Projecttitel:** SoftTrainer
 
 # Tips voor feedbackgesprekken
 
@@ -32,17 +32,22 @@
 
 # Feedforward gesprekken
 
-## Gesprek 1 (Datum: xx/xx/2024)
+## Gesprek 1 (Datum: 24/05/2024)
 
-Lector:
+Lector: Geert
 
-Vragen voor dit gesprek:
+Vragen voor dit gesprek: 
 
-- vraag 1: V
+- vraag 1: Algemeen nakijken van fritzing schema 
 
 Dit is de feedback op mijn vragen.
 
-- feedback 1: G
+- feedback 1: weerstanden toevoegen bij de leds
+- feedback 2: weerstanden toevoegen bij de 4x7 display
+- feedback 3: rotary encoder plus aansluiten op schema
+- feedback 4: weerstanden toevoegen aan de knoppen
+- feedback 5: 3v3 aansluiten op de andere breadbord
+
 
 ## Gesprek 2 (Datum: xx/xx/2024)
 

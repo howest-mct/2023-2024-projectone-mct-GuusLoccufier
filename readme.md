@@ -1,9 +1,9 @@
-# Titel van project
+# SoftTrainer
 
-**VOORNAAM NAAM:** A B
+**VOORNAAM NAAM:** GUUS LOCCUFIER
 
-**Sparringpartner:** C D
+**Sparringpartner:** Jakub Tyszkiewicz
 
-**Projectsamenvatting in max 10 woorden:** E
+**Projectsamenvatting in max 10 woorden:** An interactive airsoft shooting and training range.
 
-**Projecttitel:** F
+**Projecttitel:** SoftTrainer
