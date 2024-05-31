@@ -49,17 +49,17 @@ Dit is de feedback op mijn vragen.
 - feedback 5: 3v3 aansluiten op de andere breadbord
 
 
-## Gesprek 2 (Datum: xx/xx/2024)
+## Gesprek 2 (Datum: 28/05/2024)
 
-Lector:
+Lector: Dieter
 
 Vragen voor dit gesprek:
 
-- vraag 1: V
+- vraag 1: Database nakijken
 
 Dit is de feedback op mijn vragen.
 
-- feedback 1: G
+- feedback 1: Zorg ervoor dat je geen loops hebt in je database schema
 
 ## Gesprek 3 (Datum: xx/xx/2024)
 
