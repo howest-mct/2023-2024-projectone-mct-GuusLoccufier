@@ -43,6 +43,11 @@ def convert_to_iso(data):
 #     t = threading.Thread(target=all_out, daemon=True)
 #     t.start()
 #     print("thread started")
+def mcp():
+    piezoelectric = MCP.read_channel(0x00)
+    if piezoelectric > 50:
+        print(f"Piezzo => {piezoelectric}")
+        nieuw_type = DataRepository.create_type(1, 1,None, None)
 
 
 # API ENDPOINTS
