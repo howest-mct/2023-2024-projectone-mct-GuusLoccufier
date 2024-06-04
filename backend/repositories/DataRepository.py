@@ -11,8 +11,8 @@ class DataRepository:
         return gegevens
 
     @staticmethod
-    def read_status_lampen():
-        sql = "SELECT * from lampen"
+    def read_history():
+        sql = "SELECT * from history"
         return Database.get_rows(sql)
 
     @staticmethod

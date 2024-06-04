@@ -1,43 +1,48 @@
 import threading
+from datetime import datetime
 import time
 from repositories.DataRepository import DataRepository
 from flask import Flask, jsonify
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-
-# TODO: GPIO
+from RPi import GPIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'HELLOTHISISSCERET'
+app.config['SECRET_KEY'] = 'loccuF13r'
 
 # ping interval forces rapid B2F communication
 socketio = SocketIO(app, cors_allowed_origins="*",
                     async_mode='gevent', ping_interval=0.5)
 CORS(app)
 
+def convert_to_iso(data):
+    for record in data:
+        if isinstance(record['timestamp'], datetime):
+            record['timestamp'] = record['timestamp'].isoformat()
+    return data
 
 # START een thread op. Belangrijk!!! Debugging moet UIT staan op start van de server, anders start de thread dubbel op
 # werk enkel met de packages gevent en gevent-websocket.
-def all_out():
-    # wait 10s with sleep sintead of threading.Timer, so we can use daemon
-    time.sleep(10)
-    while True:
-        print('*** We zetten alles uit **')
-        DataRepository.update_status_alle_lampen(0)
-        status = DataRepository.read_status_lampen()
-        socketio.emit('B2F_alles_uit', {
-                    'status': "lampen uit"})
-        socketio.emit('B2F_status_lampen', {'lampen': status})
-        # save our last run time
-        last_time_alles_uit = now
-        time.sleep(30)
-
-
-def start_thread():
-    # threading.Timer(10, all_out).start()
-    t = threading.Thread(target=all_out, daemon=True)
-    t.start()
-    print("thread started")
+# def all_out():
+#     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
+#     time.sleep(10)
+#     while True:
+#         print('*** We zetten alles uit **')
+#         DataRepository.update_status_alle_lampen(0)
+#         status = DataRepository.read_status_lampen()
+#         socketio.emit('B2F_alles_uit', {
+#                     'status': "lampen uit"})
+#         socketio.emit('B2F_status_lampen', {'lampen': status})
+#         # save our last run time
+#         last_time_alles_uit = now
+#         time.sleep(30)
+#
+#
+# def start_thread():
+#     # threading.Timer(10, all_out).start()
+#     t = threading.Thread(target=all_out, daemon=True)
+#     t.start()
+#     print("thread started")
 
 
 # API ENDPOINTS
@@ -52,10 +57,11 @@ def initial_connection():
     print('A new client connect')
     # # Send to the client!
     # vraag de status op van de lampen uit de DB
-    status = DataRepository.read_status_lampen()
-    # socketio.emit('B2F_status_lampen', {'lampen': status})
+    history = DataRepository.read_history()
+    # socketio.emit('B2F_status_lampen', {'history': status})
     # Beter is het om enkel naar de client te sturen die de verbinding heeft gemaakt.
-    emit('B2F_status_lampen', {'lampen': status}, broadcast=False)
+    history = convert_to_iso(history)
+    emit('B2F_history', {'history': history}, broadcast=False)
 
 
 @socketio.on('F2B_switch_light')
@@ -78,7 +84,7 @@ def switch_light(data):
 
 if __name__ == '__main__':
     try:
-        start_thread()
+        # start_thread()
         print("**** Starting APP ****")
         socketio.run(app, debug=False, host='0.0.0.0')
     except KeyboardInterrupt:
