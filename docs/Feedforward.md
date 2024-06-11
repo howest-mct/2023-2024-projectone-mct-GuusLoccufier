@@ -61,14 +61,15 @@ Dit is de feedback op mijn vragen.
 
 - feedback 1: Zorg ervoor dat je geen loops hebt in je database schema
 
-## Gesprek 3 (Datum: xx/xx/2024)
+## Gesprek 3 (Datum: 04/06/2024)
 
-Lector:
+Lector: christophe
 
 Vragen voor dit gesprek:
 
-- [x] vraag 1: V
+- vraag 1: Algemeen nakijken stand van zaken
 
 Dit is de feedback op mijn vragen.
 
-- feedback 1: G
+- feedback 1: socket.io in de threads laten werken
+- feedback 2: github branches gebruiken en profile board onderhouden

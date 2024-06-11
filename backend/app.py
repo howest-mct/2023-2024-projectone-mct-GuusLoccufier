@@ -36,6 +36,13 @@ app.config['SECRET_KEY'] = 'loccuF13r'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent', ping_interval=0.5)
 CORS(app)
 
+def history_add(device, action, json):
+    global running_session
+    DataRepository.create_event(device, action, json, running_session)
+    history = DataRepository.read_history()
+    history = convert_to_iso(history)
+    socketio.emit('B2F_history', {'history': history})
+
 def convert_to_iso(data):
     for record in data:
         if isinstance(record['timestamp'], datetime):
@@ -59,26 +66,30 @@ def target():
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def control():
+    global running_session
     display = "Interface: address"
     for interface, ip in get_ips():
         display += f"\n{interface}: {ip}"
     OLED.clear_display()
     OLED.write_text(display)
+    history_add(22, 8, json.dumps({"text": display}))
     
     while True:
         if encoder.pressed():
             print("Encoder pressed")
-            DataRepository.create_event(19, 7, None, running_session)
-            history = DataRepository.read_history()
-            history = convert_to_iso(history)
-            socketio.emit('B2F_history', {'history': history})
+            history_add(19, 7, None)
+            if running_session:
+                DataRepository.stop_session(running_session)
+                print(f"Session {running_session} stopped")
+                running_session = None
+            else:
+                running_session = DataRepository.start_session(1, 1)
+                print(f"Session {running_session} started")
+                
         rotation_value = encoder.value()
         if rotation_value != 0:
             print(f"Rotation value: {rotation_value}")
-            DataRepository.create_event(19, 6, json.dumps({"rotation": rotation_value}), running_session)
-            history = DataRepository.read_history()
-            history = convert_to_iso(history)
-            socketio.emit('B2F_history', {'history': history})
+            history_add(19, 6, json.dumps({"rotation": rotation_value}))
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def start_target_thread():
