@@ -1,17 +1,19 @@
 import time
 from Classes.OLEDDisplay import OLEDDisplay
 
+display = OLEDDisplay()
+
 def setup():
     pass
 
 def main():
-    with OLEDDisplay() as display:
-        display.clear_display()
-        time.sleep(1)
-        display.write_text("Hello, world!\n192.168.192.143")
-        time.sleep(5)
-        display.write_text("Testing!")
-        time.sleep(5)
+    display.write_text("Hello, world!\n192")
+    display.write_text("Hello, world!\n192.168")
+    display.write_text("Hello, world!\n192.168.88")
+    display.write_text("Hello, world!\n192.168.88.143")
+
+def cleanup():
+    display.close()
 
 if __name__ == "__main__":
     print("Starting program")
@@ -21,6 +23,6 @@ if __name__ == "__main__":
         while True:
             main()
     except KeyboardInterrupt:
-        pass
+        cleanup()
     finally:
         print(f"Stopping program --- ran for: {time.time() - start_time} seconds")

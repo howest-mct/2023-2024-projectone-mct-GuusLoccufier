@@ -29,6 +29,8 @@ NUM_CHANNELS = 8  # Number of channels 1 per target
 # Globals 
 last_event_time = [0] * NUM_CHANNELS # Last time an event was registered for each channel
 running_session = None # Current running session
+active_user = None
+current_course = None
 
 # Flask variables
 app = Flask(__name__)
@@ -42,6 +44,17 @@ def history_add(device, action, json):
     history = DataRepository.read_history()
     history = convert_to_iso(history)
     socketio.emit('B2F_history', {'history': history})
+
+def get_encoder_state():
+    encoder_value = encoder.value()
+    encoder_pressed = encoder.pressed()
+    if encoder_pressed:
+        print("Encoder pressed")
+        history_add(19, 7, None)
+    if encoder_value != 0:
+        print(f"Encoder value: {encoder_value}")
+        history_add(19, 6, json.dumps({"rotation": encoder_value}))
+    return (encoder_value, encoder_pressed)
 
 def convert_to_iso(data):
     for record in data:
@@ -66,30 +79,38 @@ def target():
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def control():
-    global running_session
-    display = "Interface: address"
+    global running_session, active_user, current_course
+    text = "Interface: address"
     for interface, ip in get_ips():
-        display += f"\n{interface}: {ip}"
+        text += f"\n{interface}: {ip}"
     OLED.clear_display()
-    OLED.write_text(display)
-    history_add(22, 8, json.dumps({"text": display}))
-    
+    OLED.write_text(text)
+    history_add(22, 8, json.dumps({"text": text}))
+    time.sleep(2)
+    users = [[item['id'], item['username']] for item in DataRepository.get_users()]
+    active_user = OLED.menu_navigation(users, get_encoder_state)
+    print(f"Selected user: {active_user}")
+    courses = [[item['id'], item['name']] for item in DataRepository.get_courses()]
+    current_course = OLED.menu_navigation(courses, get_encoder_state)
+    print(f"Selected user: {current_course}")
+    print(DataRepository.get_sequence(current_course))
+
+
     while True:
-        if encoder.pressed():
-            print("Encoder pressed")
-            history_add(19, 7, None)
-            if running_session:
-                DataRepository.stop_session(running_session)
-                print(f"Session {running_session} stopped")
-                running_session = None
-            else:
-                running_session = DataRepository.start_session(1, 1)
-                print(f"Session {running_session} started")
-                
-        rotation_value = encoder.value()
-        if rotation_value != 0:
-            print(f"Rotation value: {rotation_value}")
-            history_add(19, 6, json.dumps({"rotation": rotation_value}))
+        # if encoder.pressed():
+        #     print("Encoder pressed")
+        #     history_add(19, 7, None)
+        #     if running_session:
+        #         DataRepository.stop_session(running_session)
+        #         print(f"Session {running_session} stopped")
+        #         running_session = None
+        #     else:
+        #         running_session = DataRepository.start_session(1, 1)
+        #         print(f"Session {running_session} started")
+        # rotation_value = encoder.value()
+        # if rotation_value != 0:
+        #     print(f"Rotation value: {rotation_value}")
+        #     history_add(19, 6, json.dumps({"rotation": rotation_value}))
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def start_target_thread():

@@ -182,6 +182,86 @@ class OLEDDisplay:
         thread = threading.Thread(target=display_image_thread_worker)
         thread.start()
 
+    def display_menu(self, menu_items, selected_index):
+        """
+        Display a menu on the OLED display.
+
+        :param menu_items: A list of tuples where each tuple contains (value, display_text).
+        :param selected_index: The index of the currently selected menu item.
+        """
+        image = Image.new('1', (self.width, self.height), 0)
+        draw = ImageDraw.Draw(image)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 10)
+
+        max_lines = self.height // 12  # Assuming 12 pixels per line (10 for font size + 2 for padding)
+        start_index = max(0, selected_index - max_lines + 1)
+        end_index = min(len(menu_items), start_index + max_lines)
+
+        y = 0
+        for i in range(start_index, end_index):
+            item = menu_items[i][1]  # Get the display text from the tuple
+            if i == selected_index:
+                draw.rectangle((0, y, self.width, y + 12), outline=255, fill=255)
+                draw.text((2, y), item, font=font, fill=0)
+            else:
+                draw.text((2, y), item, font=font, fill=255)
+            y += 12
+
+        self._display_image_from_image(image)
+
+    def _display_image_from_image(self, image):
+        """
+        Display an image object on the OLED display.
+
+        :param image: The PIL Image object to display.
+        """
+        pixel_data = list(image.getdata())
+        pages = [0x00] * (self.width * self.pages)
+
+        for i in range(self.height):
+            for j in range(self.width):
+                if pixel_data[i * self.width + j]:
+                    pages[j + (i // 8) * self.width] |= (1 << (i % 8))
+
+        self.write_command(0x22)
+        self.write_command(0x00)
+        self.write_command(0x07)
+        self.write_command(0x21)
+        self.write_command(0x00)
+        self.write_command(0x7F)
+
+        for page in range(self.pages):
+            self.write_command(0xB0 + page)
+            self.write_command(0x00)
+            self.write_command(0x10)
+            self.write_data(pages[page * self.width:(page + 1) * self.width])
+
+    def menu_navigation(self, menu_items, get_encoder_state):
+        """
+        Navigate through a menu and return the selected value.
+
+        :param menu_items: A list of tuples where each tuple contains (value, display_text).
+        :param get_encoder_state: A callback function to get the state of the rotary encoder.
+        :return: The selected value from the tuple.
+        """
+        selected_index = 0
+        self.display_menu(menu_items, selected_index)
+
+        while True:
+            # get_encoder_state should return a tuple: (rotary_change, button_pressed)
+            rotary_change, button_pressed = get_encoder_state()
+
+            if rotary_change > 0:
+                selected_index = (selected_index - 1) % len(menu_items)
+                self.display_menu(menu_items, selected_index)
+                time.sleep(0.2)  # Debounce delay
+            elif rotary_change < 0:
+                selected_index = (selected_index + 1) % len(menu_items)
+                self.display_menu(menu_items, selected_index)
+                time.sleep(0.2)  # Debounce delay
+            elif button_pressed:
+                return menu_items[selected_index][0]  # Return the value from the tuple
+
     def close(self):
         """
         Close the I2C bus.

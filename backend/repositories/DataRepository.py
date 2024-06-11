@@ -11,7 +11,7 @@ class DataRepository:
 
     @staticmethod
     def read_history():
-        sql = "SELECT * from history"
+        sql = "SELECT * FROM history"
         return Database.get_rows(sql)
 
     @staticmethod
@@ -19,6 +19,22 @@ class DataRepository:
         sql = "INSERT INTO history (device_id, action_id, parameters, session_id) VALUES (%s,%s,%s,%s)"
         params = [device_id, action_id, parameters, session_id]
         return Database.execute_sql(sql, params)
+    
+    @staticmethod
+    def get_users():
+        sql = "SELECT id, username FROM users"
+        return Database.get_rows(sql)
+
+    @staticmethod
+    def get_courses():
+        sql = "SELECT id, name FROM trainingcourses"
+        return Database.get_rows(sql)
+
+    @staticmethod
+    def get_sequence(id):
+        sql = "SELECT sequence from trainingcourses WHERE id = %s"
+        params = [id]
+        return Database.get_one_row(sql, params)
 
     @staticmethod
     def start_session(user_id, training_course_id):
