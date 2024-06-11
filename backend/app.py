@@ -8,14 +8,31 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from RPi import GPIO
 
+from Classes.Utilities import *
 from Classes.MCP3008 import MCP3008
+from Classes.PCF8574 import PCF8574
+from Classes.Button import Button
+from Classes.Buzzer import Buzzer
+from Classes.Encoder import Encoder
+from Classes.OLEDDisplay import OLEDDisplay
+from Classes.SevenSegmentDisplay import SevenSegmentDisplay
 
 MCP = MCP3008(0, 0)
+OLED = OLEDDisplay()
+encoder = Encoder(clk=24, dt=23, sw=25)
 
+# Constants
+PIEZO_THRESHOLD = 50 # Threshold where a hit is counted
+DEBOUNCE_DELAY_MS = 200  # Debounce delay in milliseconds
+NUM_CHANNELS = 8  # Number of channels 1 per target
+
+# Globals 
+last_event_time = [0] * NUM_CHANNELS # Last time an event was registered for each channel
+running_session = None # Current running session
+
+# Flask variables
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'loccuF13r'
-
-# ping interval forces rapid B2F communication
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent', ping_interval=0.5)
 CORS(app)
 
@@ -25,40 +42,67 @@ def convert_to_iso(data):
             record['timestamp'] = record['timestamp'].isoformat()
     return data
 
-# START een thread op. Belangrijk!!! Debugging moet UIT staan op start van de server, anders start de thread dubbel op
-# werk enkel met de packages gevent en gevent-websocket.
-def mcp():
-    MCP = MCP3008(0, 0)
+def target():
+    global last_event_time, running_session
     while True:
-        # TODO: Add all piezo's and a debounce with millis
-        piezoelectric = MCP.read_channel(0x00)
-        if piezoelectric > 50:
-            print(f"Piezzo => {piezoelectric}")
-            nieuw_type = DataRepository.create_event(1, 1, json.dumps({"value": piezoelectric}), None)
+        current_time = time.time() * 1000  # Get current time in milliseconds
+        for channel in range(NUM_CHANNELS):
+            piezoelectric = MCP.read_channel(channel)
+            if piezoelectric > PIEZO_THRESHOLD and (current_time - last_event_time[channel]) > DEBOUNCE_DELAY_MS:
+                print(f"Piezo Channel {channel} => {piezoelectric}")
+                DataRepository.create_event(channel + 1, 1, json.dumps({"value": piezoelectric}), running_session)
+                last_event_time[channel] = current_time
+
+                history = DataRepository.read_history()
+                history = convert_to_iso(history)
+                socketio.emit('B2F_history', {'history': history})
+        time.sleep(0.01)  # Small delay to prevent CPU overuse
+
+def control():
+    display = "Interface: address"
+    for interface, ip in get_ips():
+        display += f"\n{interface}: {ip}"
+    OLED.clear_display()
+    OLED.write_text(display)
+    
+    while True:
+        if encoder.pressed():
+            print("Encoder pressed")
+            DataRepository.create_event(19, 7, None, running_session)
             history = DataRepository.read_history()
             history = convert_to_iso(history)
             socketio.emit('B2F_history', {'history': history})
+        rotation_value = encoder.value()
+        if rotation_value != 0:
+            print(f"Rotation value: {rotation_value}")
+            DataRepository.create_event(19, 6, json.dumps({"rotation": rotation_value}), running_session)
+            history = DataRepository.read_history()
+            history = convert_to_iso(history)
+            socketio.emit('B2F_history', {'history': history})
+        time.sleep(0.01)  # Small delay to prevent CPU overuse
 
-def start_mcp_thread():
-    mcp_thread = threading.Thread(target=mcp, daemon=True)
-    mcp_thread.start()
-    print("mcp_thread started")
+def start_target_thread():
+    target_thread = threading.Thread(target=target, daemon=True)
+    target_thread.start()
+    print("target_thread started")
+
+def start_control_thread():
+    control_thread = threading.Thread(target=control, daemon=True)
+    control_thread.start()
+    print("control_thread started")
 
 # API ENDPOINTS
 @app.route('/')
 def hallo():
     return "Server is running, er zijn momenteel geen API endpoints beschikbaar."
 
-
 # SOCKET IO
 @socketio.on('connect')
 def initial_connection():
     print('A new client connect')
     history = DataRepository.read_history()
-    # Beter is het om enkel naar de client te sturen die de verbinding heeft gemaakt.
     history = convert_to_iso(history)
     emit('B2F_history', {'history': history}, broadcast=False)
-
 
 # @socketio.on('F2B_switch_light')
 # def switch_light(data):
@@ -77,14 +121,18 @@ def initial_connection():
 #         print(f"TV kamer moet switchen naar {new_status} !")
 #         # Do something
 
+def cleanup():
+    MCP.close()
+    OLED.close()
 
 if __name__ == '__main__':
     try:
-        start_mcp_thread()
+        start_target_thread()
+        start_control_thread()
         print("**** Starting APP ****")
         socketio.run(app, debug=False, host='0.0.0.0')
     except KeyboardInterrupt:
         print('KeyboardInterrupt exception is caught')
-        MCP.close()
+        cleanup()
     finally:
         print("finished")

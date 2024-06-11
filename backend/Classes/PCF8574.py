@@ -1,7 +1,7 @@
 from smbus import SMBus
 import RPi.GPIO as GPIO
 
-#            MCP3008
+#            PCF8574
 #           +--- ---+
 # A0   Pin 1|o  '   | Pin 16  VCC
 # A1   Pin 2|       | Pin 15  SDA
