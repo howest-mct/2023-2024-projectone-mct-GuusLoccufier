@@ -261,6 +261,8 @@ class OLEDDisplay:
                 time.sleep(0.2)  # Debounce delay
             elif button_pressed:
                 return menu_items[selected_index][0]  # Return the value from the tuple
+            
+            time.sleep(0.01)  # Small delay to prevent CPU overuse
 
     def close(self):
         """

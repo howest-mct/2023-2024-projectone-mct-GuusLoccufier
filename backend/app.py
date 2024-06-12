@@ -18,6 +18,7 @@ from Classes.OLEDDisplay import OLEDDisplay
 from Classes.SevenSegmentDisplay import SevenSegmentDisplay
 
 MCP = MCP3008(0, 0)
+TargetPCF = PCF8574(0x20)
 OLED = OLEDDisplay()
 encoder = Encoder(clk=24, dt=23, sw=25)
 
@@ -79,38 +80,35 @@ def target():
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def control():
-    global running_session, active_user, current_course
-    text = "Interface: address"
-    for interface, ip in get_ips():
-        text += f"\n{interface}: {ip}"
-    OLED.clear_display()
-    OLED.write_text(text)
-    history_add(22, 8, json.dumps({"text": text}))
-    time.sleep(2)
-    users = [[item['id'], item['username']] for item in DataRepository.get_users()]
-    active_user = OLED.menu_navigation(users, get_encoder_state)
-    print(f"Selected user: {active_user}")
-    courses = [[item['id'], item['name']] for item in DataRepository.get_courses()]
-    current_course = OLED.menu_navigation(courses, get_encoder_state)
-    print(f"Selected user: {current_course}")
-    print(DataRepository.get_sequence(current_course))
-
-
     while True:
-        # if encoder.pressed():
-        #     print("Encoder pressed")
-        #     history_add(19, 7, None)
-        #     if running_session:
-        #         DataRepository.stop_session(running_session)
-        #         print(f"Session {running_session} stopped")
-        #         running_session = None
-        #     else:
-        #         running_session = DataRepository.start_session(1, 1)
-        #         print(f"Session {running_session} started")
-        # rotation_value = encoder.value()
-        # if rotation_value != 0:
-        #     print(f"Rotation value: {rotation_value}")
-        #     history_add(19, 6, json.dumps({"rotation": rotation_value}))
+        global running_session, active_user, current_course
+        text = "Interface: address"
+        for interface, ip in get_ips():
+            text += f"\n{interface}: {ip}"
+        OLED.clear_display()
+        OLED.write_text(text)
+        history_add(22, 8, json.dumps({"text": text}))
+        time.sleep(2)
+        users = [[item['id'], item['username']] for item in DataRepository.get_users()]
+        active_user = OLED.menu_navigation(users, get_encoder_state)
+        print(f"Selected user: {active_user}")
+        courses = [[item['id'], item['name']] for item in DataRepository.get_courses()]
+        current_course = OLED.menu_navigation(courses, get_encoder_state)
+        print(f"Selected user: {current_course}")
+        sequence = json.loads(DataRepository.get_sequence(current_course)["sequence"])["sequence"]
+        for i in sequence:
+            if i[-1] in [str(i) for i in range(1, 9)]:
+                byte = 1 << int(i[-1])
+                byte = ~byte & 0xFF
+                TargetPCF.write_byte(byte)
+                print(bin(byte))
+            else:
+                TargetPCF.write_byte(0b11111111)
+                print("reload")
+            time.sleep(2)
+        TargetPCF.write_byte(0b11111111)
+        print("done")
+
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def start_target_thread():
