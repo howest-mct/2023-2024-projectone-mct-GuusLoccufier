@@ -268,6 +268,7 @@ class OLEDDisplay:
         """
         Close the I2C bus.
         """
+        self.clear_display()
         self.bus.close()
 
     def __enter__(self):

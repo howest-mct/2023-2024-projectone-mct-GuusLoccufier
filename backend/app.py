@@ -96,6 +96,7 @@ def control():
         current_course = OLED.menu_navigation(courses, get_encoder_state)
         print(f"Selected user: {current_course}")
         sequence = json.loads(DataRepository.get_sequence(current_course)["sequence"])["sequence"]
+        running_session = DataRepository.start_session(active_user, current_course)
         for i in sequence:
             if i[-1] in [str(i) for i in range(1, 9)]:
                 byte = 1 << int(i[-1])
@@ -108,6 +109,8 @@ def control():
             time.sleep(2)
         TargetPCF.write_byte(0b11111111)
         print("done")
+        DataRepository.stop_session(running_session)
+        running_session = None
 
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
@@ -134,6 +137,10 @@ def initial_connection():
     history = convert_to_iso(history)
     emit('B2F_history', {'history': history}, broadcast=False)
 
+@socketio.on('B2F_addCourse')
+def add_course(course_data):
+    print(course_data)
+    emit('B2F_success', broadcast=False)
 # @socketio.on('F2B_switch_light')
 # def switch_light(data):
 #     print('licht gaat aan/uit', data)
