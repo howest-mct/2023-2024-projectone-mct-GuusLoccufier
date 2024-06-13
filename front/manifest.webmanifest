@@ -1,0 +1,17 @@
+{
+    "name": "MCT",
+    "short_name": "MCT",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512"
+        }
+    ],
+    "theme_color": "#44c8f5",
+    "background_color": "#44c8f5",
+    "display": "standalone"
+}
