@@ -45,6 +45,9 @@ def get_ips():
         print(f"Error occurred while getting IP addresses: {e}")
         return []
 
+def power_off():
+    subprocess.run(["sudo", "poweroff"])
+
 # Example usage
 if __name__ == "__main__":
     print("Mapped value (map_to):", map_to(512))

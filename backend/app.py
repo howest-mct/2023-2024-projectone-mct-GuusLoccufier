@@ -21,6 +21,7 @@ MCP = MCP3008(0, 0)
 TargetPCF = PCF8574(0x20)
 OLED = OLEDDisplay()
 encoder = Encoder(clk=24, dt=23, sw=25)
+buzzer = Buzzer(12)
 
 # Constants
 PIEZO_THRESHOLD = 50 # Threshold where a hit is counted
@@ -51,7 +52,6 @@ def get_encoder_state():
     encoder_pressed = encoder.pressed()
     if encoder_pressed:
         print("Encoder pressed")
-        history_add(19, 7, None)
     if encoder_value != 0:
         print(f"Encoder value: {encoder_value}")
         history_add(19, 6, json.dumps({"rotation": encoder_value}))
@@ -79,38 +79,59 @@ def target():
                 socketio.emit('B2F_history', {'history': history})
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
+def course():
+    global running_session, active_user, current_course, last_event_time
+    buzzer.beep(frequency=500, duration=1)
+    history_add(17, 3, json.dumps({"frequency": 500}))
+    OLED.write_text("GO!")
+    history_add(22, 8, json.dumps({"text": "GO!"}))
+    sequence = json.loads(DataRepository.get_sequence(current_course)["sequence"])["sequence"]
+    running_session = DataRepository.start_session(active_user, current_course)
+    for i in sequence:
+        if i[-1] in [str(i) for i in range(8)]:
+            initial_state = last_event_time.copy()
+            byte = 1 << int(i[-1])
+            byte = ~byte & 0xFF
+            TargetPCF.write_byte(byte)
+            history_add(8+int(i[-1]), 2, json.dumps({"byte": bin(byte)}))
+            print(bin(byte))
+            while last_event_time[int(i[-1])+1] == initial_state[int(i[-1])+1]:
+                time.sleep(0.1)
+        else:
+            initial_state = last_event_time.copy()
+            TargetPCF.write_byte(0b00000000)
+            buzzer.beep(frequency=1000, duration=1)
+            history_add(17, 4, json.dumps({"frequency": 1000}))
+            print("reload")
+            while last_event_time == initial_state:
+                time.sleep(0.1)
+    TargetPCF.write_byte(0b11111111)
+    DataRepository.stop_session(running_session)
+    running_session = None
+    print("done")
+
 def control():
+    global running_session, active_user, current_course
+    text = "Interface: address"
+    for interface, ip in get_ips():
+        text += f"\n{interface}: {ip}"
     while True:
-        global running_session, active_user, current_course
-        text = "Interface: address"
-        for interface, ip in get_ips():
-            text += f"\n{interface}: {ip}"
         OLED.clear_display()
         OLED.write_text(text)
         history_add(22, 8, json.dumps({"text": text}))
         time.sleep(2)
         users = [[item['id'], item['username']] for item in DataRepository.get_users()]
         active_user = OLED.menu_navigation(users, get_encoder_state)
+        history_add(22, 8, json.dumps({"text": users}))
         print(f"Selected user: {active_user}")
+        history_add(19, 7, json.dumps({"user": active_user}))
         courses = [[item['id'], item['name']] for item in DataRepository.get_courses()]
         current_course = OLED.menu_navigation(courses, get_encoder_state)
-        print(f"Selected user: {current_course}")
-        sequence = json.loads(DataRepository.get_sequence(current_course)["sequence"])["sequence"]
-        running_session = DataRepository.start_session(active_user, current_course)
-        for i in sequence:
-            if i[-1] in [str(i) for i in range(1, 9)]:
-                byte = 1 << int(i[-1])
-                byte = ~byte & 0xFF
-                TargetPCF.write_byte(byte)
-                print(bin(byte))
-            else:
-                TargetPCF.write_byte(0b11111111)
-                print("reload")
-            time.sleep(2)
-        TargetPCF.write_byte(0b11111111)
-        print("done")
-        DataRepository.stop_session(running_session)
-        running_session = None
+        history_add(22, 8, json.dumps({"text": courses}))
+        print(f"Selected course: {current_course}")
+        history_add(19, 7, json.dumps({"course": current_course}))
+
+        course()
 
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
@@ -139,8 +160,13 @@ def initial_connection():
 
 @socketio.on('B2F_addCourse')
 def add_course(course_data):
-    print(course_data)
+    test = DataRepository.add_course(course_data['coursename'],  json.dumps({"sequence": course_data['coursedata'].split(', ')}))
+    print(test)
     emit('B2F_success', broadcast=False)
+
+@socketio.on('B2F_powerOff')
+def web_power_off():
+    power_off()
 # @socketio.on('F2B_switch_light')
 # def switch_light(data):
 #     print('licht gaat aan/uit', data)

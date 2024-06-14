@@ -11,7 +11,7 @@ class DataRepository:
 
     @staticmethod
     def read_history():
-        sql = "SELECT * FROM history"
+        sql = "SELECT h.id, d.name as device, a.name as action, h.session_id as session, h.parameters, h.timestamp FROM history h JOIN devices d ON h.device_id = d.id JOIN actions a ON h.action_id = a.id ORDER BY h.id DESC"
         return Database.get_rows(sql)
 
     @staticmethod
@@ -48,6 +48,11 @@ class DataRepository:
         params = [session_id]
         return Database.execute_sql(sql, params)
 
+    @staticmethod
+    def add_course(name, sequence):
+        sql = "INSERT INTO trainingcourses (name, sequence) VALUES (%s,%s)"
+        params = [name, sequence]
+        return Database.execute_sql(sql, params)
 
     # @staticmethod
     # def read_status_lamp_by_id(id):
