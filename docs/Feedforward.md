@@ -73,3 +73,20 @@ Dit is de feedback op mijn vragen.
 
 - feedback 1: socket.io in de threads laten werken
 - feedback 2: github branches gebruiken en profile board onderhouden
+
+## Gesprek 4 (Datum: 14/06/2024)
+
+Lector: christophe
+
+Vragen voor dit gesprek:
+
+- vraag 1: feedback op de website
+- vraag 2: hoe de tabel beter stijlbaar maken voor kleine schrmen
+- vraag 3: hoe best content van achter de navbar krijgen
+
+Dit is de feedback op mijn vragen.
+
+- feedback 1: parameters verbergen op site
+- feedback 2: reverce left navbar 
+- feedback 3: om stijlbaarhijd te verberen kan je de tabel veranderen met divs als er genoeg tijd is
+- feedback 4: padding left / bottom toevoegen per navbar locatie
