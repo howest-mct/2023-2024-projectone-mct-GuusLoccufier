@@ -95,7 +95,7 @@ def course():
             TargetPCF.write_byte(byte)
             history_add(8+int(i[-1]), 2, json.dumps({"byte": bin(byte)}))
             print(bin(byte))
-            while last_event_time[int(i[-1])+1] == initial_state[int(i[-1])+1]:
+            while last_event_time[int(i[-1])] == initial_state[int(i[-1])]:
                 time.sleep(0.1)
         else:
             initial_state = last_event_time.copy()
@@ -164,8 +164,35 @@ def add_course(course_data):
     print(test)
     emit('B2F_success', broadcast=False)
 
+@socketio.on('B2F_getCourses')
+def web_get_courses():
+    print('Getting courses')
+    courses = DataRepository.get_courses()
+    emit('B2F_courses', {'courses': courses}, broadcast=False)
+
+@socketio.on('B2F_startCourse')
+def web_start_course(id):
+    global current_course
+    current_course = id['courseid']
+    emit('B2F_success', broadcast=False)
+    course()
+    
+@socketio.on('B2F_changeUser')
+def web_change_user(id):
+    global active_user
+    active_user = id['userid']
+    emit('B2F_success', broadcast=False)
+    course()
+
+@socketio.on('B2F_getUser')
+def web_get_user():
+    global active_user
+    print('Sending user')
+    emit('B2F_user', {'user': active_user}, broadcast=False)
+
 @socketio.on('B2F_powerOff')
 def web_power_off():
+    emit('B2F_success', broadcast=False)
     power_off()
 # @socketio.on('F2B_switch_light')
 # def switch_light(data):

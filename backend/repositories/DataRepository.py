@@ -37,6 +37,12 @@ class DataRepository:
         return Database.get_one_row(sql, params)
 
     @staticmethod
+    def get_sequence(id):
+        sql = "SELECT sequence from trainingcourses WHERE id = %s"
+        params = [id]
+        return Database.get_one_row(sql, params)
+
+    @staticmethod
     def start_session(user_id, training_course_id):
         sql = "INSERT INTO sessions (user_id, training_course_id) VALUES (%s, %s)"
         params = [user_id, training_course_id]
