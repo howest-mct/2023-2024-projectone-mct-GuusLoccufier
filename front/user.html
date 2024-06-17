@@ -47,10 +47,20 @@
     </header>
     <main class="o-row o-row--xl">
         <div class="o-container">
-            <h1>Hi, [username]<br><span class="">Manage the profiles.</span></h1>
+            <h1>Hi, <span class="js-username"></span><br><span class="">Manage the profiles.</span></h1>
             <div class="">
-                <button class="o-button-reset">Yes go ahead</button>
-                <button class="o-button-reset">Don't do it</button>
+                <select class="js-user-selector" id="userSelector">
+                    <option value="" disabled selected>Select a user</option>
+                    <option value="1">user1</option>
+                    <option value="2">user2</option>
+                </select><br>
+                <button class="o-button-reset" onclick="sendUserData()">Yes go ahead</button>
+                <a href="/index.html"><button class="o-button-reset">Don't do it</button></a>
+            </div>
+            <div class="">
+                <input type="text" id="userName" placeholder="Name"><br>
+                <button class="o-button-reset" onclick="sendAddUserData()">Yes go ahead</button>
+                <a href="/index.html"><button class="o-button-reset">Don't do it</button></a>
             </div>
         </div>
     </main>
