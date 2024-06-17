@@ -4,18 +4,23 @@ from Classes.Button import Button
 def default_callback(channel):
     print("Button event detected on channel:", channel)
 
+b1 = Button(20, default_callback)
+b2 = Button(21, default_callback)
+
 def setup():
     pass
 
 def main():
-    with Button(pin=20, default_callback=default_callback) as button:
-        # button.set_press_callback()  # Use default callback for press
+        b1.set_press_callback()  # Use default callback for press
+        b2.set_press_callback()  # Use default callback for press
         # button.set_release_callback()  # Use default callback for release
-        button.set_both_callbacks()  # Use default callback for both press and release
+        # button.set_both_callbacks()  # Use default callback for both press and release
 
         while True:
-            if button.is_pressed:
-                print("Button is currently pressed.")
+            if b1.is_pressed:
+                print("Button 20 is currently pressed.")
+            if b2.is_pressed:
+                print("Button 21 is currently pressed.")
             time.sleep(0.1)
 
 if __name__ == "__main__":

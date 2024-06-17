@@ -19,6 +19,11 @@ class DataRepository:
         sql = "INSERT INTO history (device_id, action_id, parameters, session_id) VALUES (%s,%s,%s,%s)"
         params = [device_id, action_id, parameters, session_id]
         return Database.execute_sql(sql, params)
+
+    @staticmethod
+    def hit_count():
+        sql = "SELECT COUNT(*) as count FROM history WHERE action_id = 1"
+        return Database.get_one_row(sql)
     
     @staticmethod
     def get_users():
@@ -37,8 +42,8 @@ class DataRepository:
         return Database.get_one_row(sql, params)
 
     @staticmethod
-    def get_sequence(id):
-        sql = "SELECT sequence from trainingcourses WHERE id = %s"
+    def get_user(id):
+        sql = "SELECT username from users WHERE id = %s"
         params = [id]
         return Database.get_one_row(sql, params)
 
@@ -60,6 +65,11 @@ class DataRepository:
         params = [name, sequence]
         return Database.execute_sql(sql, params)
 
+    @staticmethod
+    def add_user(name):
+        sql = "INSERT INTO users (username) VALUES (%s)"
+        params = [name]
+        return Database.execute_sql(sql, params)
     # @staticmethod
     # def read_status_lamp_by_id(id):
     #     sql = "SELECT * from lampen WHERE id = %s"

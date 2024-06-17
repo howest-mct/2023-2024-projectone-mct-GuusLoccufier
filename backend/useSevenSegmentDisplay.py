@@ -11,7 +11,7 @@ def main():
     for i in range(10000):
         print(i)
         display.display_number(i)
-        time.sleep(0.2)
+        time.sleep(0.1)
         # stop the display update if needed
         if i == 9999:
             display.stop()

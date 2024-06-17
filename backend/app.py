@@ -22,6 +22,9 @@ TargetPCF = PCF8574(0x20)
 OLED = OLEDDisplay()
 encoder = Encoder(clk=24, dt=23, sw=25)
 buzzer = Buzzer(12)
+b1 = Button(20)
+b2 = Button(21)
+scoreboard = SevenSegmentDisplay(0x3a)
 
 # Constants
 PIEZO_THRESHOLD = 50 # Threshold where a hit is counted
@@ -33,6 +36,7 @@ last_event_time = [0] * NUM_CHANNELS # Last time an event was registered for eac
 running_session = None # Current running session
 active_user = None
 current_course = None
+total_hits = 0
 
 # Flask variables
 app = Flask(__name__)
@@ -46,6 +50,15 @@ def history_add(device, action, json):
     history = DataRepository.read_history()
     history = convert_to_iso(history)
     socketio.emit('B2F_history', {'history': history})
+
+def send_user():
+    global active_user
+    if active_user:
+        user = DataRepository.get_user(active_user)
+        print(f'Sending user {user}')
+        socketio.emit('B2F_user', {'user': active_user, 'name': user["username"]})
+    else:
+        emit('B2F_user', {'user': active_user}, broadcast=False)
 
 def get_encoder_state():
     encoder_value = encoder.value()
@@ -63,6 +76,13 @@ def convert_to_iso(data):
             record['timestamp'] = record['timestamp'].isoformat()
     return data
 
+def power_callback(pin):
+    press_time = time.time()*1000
+    print("counting for poweroff")
+    while b1.is_pressed:
+        if time.time()*1000 >= press_time + 3000:
+            power_off()
+
 def target():
     global last_event_time, running_session
     while True:
@@ -77,6 +97,9 @@ def target():
                 history = DataRepository.read_history()
                 history = convert_to_iso(history)
                 socketio.emit('B2F_history', {'history': history})
+                total_hits = DataRepository.hit_count()
+                print(total_hits["count"])
+                scoreboard.display_number(total_hits["count"])
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
 def course():
@@ -112,6 +135,7 @@ def course():
 
 def control():
     global running_session, active_user, current_course
+    b1.set_press_callback(power_callback)
     text = "Interface: address"
     for interface, ip in get_ips():
         text += f"\n{interface}: {ip}"
@@ -119,11 +143,13 @@ def control():
         OLED.clear_display()
         OLED.write_text(text)
         history_add(22, 8, json.dumps({"text": text}))
-        time.sleep(2)
+        while not b2.is_pressed:
+            time.sleep(0.1)
         users = [[item['id'], item['username']] for item in DataRepository.get_users()]
         active_user = OLED.menu_navigation(users, get_encoder_state)
         history_add(22, 8, json.dumps({"text": users}))
         print(f"Selected user: {active_user}")
+        send_user()
         history_add(19, 7, json.dumps({"user": active_user}))
         courses = [[item['id'], item['name']] for item in DataRepository.get_courses()]
         current_course = OLED.menu_navigation(courses, get_encoder_state)
@@ -131,7 +157,7 @@ def control():
         print(f"Selected course: {current_course}")
         history_add(19, 7, json.dumps({"course": current_course}))
 
-        course()
+        start_course_thread()
 
         time.sleep(0.01)  # Small delay to prevent CPU overuse
 
@@ -145,6 +171,11 @@ def start_control_thread():
     control_thread.start()
     print("control_thread started")
 
+def start_course_thread():
+    course_thread = threading.Thread(target=course, daemon=True)
+    course_thread.start()
+    print("course_thread started")
+
 # API ENDPOINTS
 @app.route('/')
 def hallo():
@@ -154,14 +185,21 @@ def hallo():
 @socketio.on('connect')
 def initial_connection():
     print('A new client connect')
+    send_user()
     history = DataRepository.read_history()
     history = convert_to_iso(history)
     emit('B2F_history', {'history': history}, broadcast=False)
 
 @socketio.on('B2F_addCourse')
 def add_course(course_data):
-    test = DataRepository.add_course(course_data['coursename'],  json.dumps({"sequence": course_data['coursedata'].split(', ')}))
-    print(test)
+    courseid = DataRepository.add_course(course_data['coursename'],  json.dumps({"sequence": course_data['coursedata'].split(', ')}))
+    print(courseid)
+    emit('B2F_success', broadcast=False)
+
+@socketio.on('B2F_addUser')
+def add_user(userdata):
+    userid = DataRepository.add_user(userdata['username'])
+    print(userid)
     emit('B2F_success', broadcast=False)
 
 @socketio.on('B2F_getCourses')
@@ -170,50 +208,38 @@ def web_get_courses():
     courses = DataRepository.get_courses()
     emit('B2F_courses', {'courses': courses}, broadcast=False)
 
+@socketio.on('B2F_getUsers')
+def web_get_users():
+    print('Getting users')
+    users = DataRepository.get_users()
+    emit('B2F_users', {'users': users}, broadcast=False)
+
 @socketio.on('B2F_startCourse')
 def web_start_course(id):
     global current_course
     current_course = id['courseid']
     emit('B2F_success', broadcast=False)
-    course()
+    start_course_thread()
     
 @socketio.on('B2F_changeUser')
 def web_change_user(id):
     global active_user
     active_user = id['userid']
     emit('B2F_success', broadcast=False)
-    course()
 
 @socketio.on('B2F_getUser')
 def web_get_user():
-    global active_user
-    print('Sending user')
-    emit('B2F_user', {'user': active_user}, broadcast=False)
+    send_user()
 
 @socketio.on('B2F_powerOff')
 def web_power_off():
     emit('B2F_success', broadcast=False)
     power_off()
-# @socketio.on('F2B_switch_light')
-# def switch_light(data):
-#     print('licht gaat aan/uit', data)
-#     lamp_id = data['lamp_id']
-#     new_status = data['new_status']
-#     # spreek de hardware aan
-#     # stel de status in op de DB
-#     res = DataRepository.update_status_lamp(lamp_id, new_status)
-#     print(res)
-#     # vraag de (nieuwe) status op van de lamp
-#     data = DataRepository.read_status_lamp_by_id(lamp_id)
-#     socketio.emit('B2F_verandering_lamp',  {'lamp': data})
-#     # Indien het om de lamp van de TV kamer gaat, dan moeten we ook de hardware aansturen.
-#     if lamp_id == '3':
-#         print(f"TV kamer moet switchen naar {new_status} !")
-#         # Do something
 
 def cleanup():
     MCP.close()
     OLED.close()
+    scoreboard.cleanup()
 
 if __name__ == '__main__':
     try:
