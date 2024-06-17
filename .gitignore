@@ -1,17 +1,17 @@
 # TODO: ignore venv
 
 # Video files (general rule)
-*.mp4
-*.mov
-*.avi
-*.wmv
-*.flv
-*.mkv
-*.webm
-*.mpg
-*.mpeg
-*.m4v
-*.3gp
+# *.mp4
+# *.mov
+# *.avi
+# *.wmv
+# *.flv
+# *.mkv
+# *.webm
+# *.mpg
+# *.mpeg
+# *.m4v
+# *.3gp
 
 # Exception: Unignore a specific video
 # !important_presentation.mp4  # This line overrides the general rule; uncomment to make active
