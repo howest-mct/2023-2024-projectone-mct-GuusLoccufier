@@ -1,0 +1,660 @@
+/*---------------------------------------/*
+ # Imports
+/*---------------------------------------*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/*---------------------------------------/*
+ # TOOLS
+/*---------------------------------------*/
+
+//
+// Media Query mixin
+// @include mq(#point, #query1, #query2);
+//
+
+@mixin mq($breakpoint, $query1: min, $query2: width) {
+  $query: map-get($breakpoints, $breakpoint);
+
+  @if $query != null {
+    @media (#{$query1}-#{$query2}: #{$query}) {
+      @content;
+    }
+  } @else {
+    @media (#{$query1}-#{$query2}: $breakpoint) {
+      @content;
+    }
+  }
+}
+
+/*---------------------------------------/*
+ # SETTINGS
+/*---------------------------------------*/
+
+// ---
+// Settings: Colors
+// ---
+
+$color-text: #2F3559;
+$color-text-light: #9A9CAA;
+$color-text-extra-light: #BFC2C9;
+
+$color-primary: #F4F5F6;
+$color-primary-light: white;
+$color-primary-dark: #E8E9EC;
+$color-secondary: #FCFCFD;
+
+$color-accent: #ED455A;
+
+$color-border:$color-text;
+
+// ---
+// Settings: Typography
+// ---
+
+$root-font-size: 16;
+
+// modular scale ratio
+$ratio: 1.125;
+
+// font-sizes
+$ms0: calc($root-font-size / 16 * 1rem); // 16px
+$ms-1: calc($ms0 / $ratio); // 14px
+$ms-2: calc($ms-1 / $ratio); // 12px
+$ms1: calc($ms0 * $ratio); // 18px
+$ms2: calc($ms1 * $ratio); // 20px
+$ms3: calc($ms2 * $ratio); // 23px
+$ms4: calc($ms3 * $ratio); // 26px
+$ms5: calc($ms4 * $ratio); // 32px
+$ms6: calc($ms5 * $ratio); // 36px
+$ms7: calc($ms6 * $ratio); // 41px
+$ms8: calc($ms7 * $ratio); // 46px
+$ms9: calc($ms8 * $ratio); // 52px
+$ms10: calc($ms9 * $ratio); // 58px
+$ms11: calc($ms10 * $ratio); // 66px
+
+$font-family-primary: "Inter", arial, sans-serif;
+$font-family-secondary: "Times New Roman", Times, serif;
+
+// ---
+// Settings: Spacing
+// ---
+
+// baseline unit
+$baseline: 0.5rem;
+
+// spacing scale
+$space-xxs: calc($baseline * 0.5); // 4px
+$space-xs: calc($baseline * 1); // 8px
+$space-s: calc($baseline * 2); // 16px
+$space-m: calc($baseline * 3); // 24px
+$space-l: calc($space-s * 2); // 32px
+$space-xl: calc($space-m * 2); // 48px
+$space-xxl: calc($space-l * 2); // 64px
+$space-xxxl: calc($space-xl * 2); // 96px
+
+// ---
+// Settings: Breakpoints
+// ---
+
+$breakpoints: (
+  bp1: calc(577 / 16 * 1em),
+  bp2: calc(769 / 16 * 1em),
+  bp3: calc(993 / 16 * 1em),
+  bp4: calc(1201 / 16 * 1em),
+  bp5: calc(1401 / 16 * 1em),
+) !default;
+
+// ---
+// Grid
+// ---
+
+$container-max-width: calc(1400 / $root-font-size * 1rem);
+
+// The gutter between columns
+$grid-gutter: $space-m;
+$grid-gutter-s: $space-s;
+$grid-gutter-l: $space-l;
+
+// Define the amount of columns in the grid
+$columns: (2, 3, 4, 5, 6) !default;
+
+/*---------------------------------------/*
+ # GENERIC
+/*---------------------------------------*/
+
+*,
+*:before,
+*:after {
+  // Reset box-sizing
+  box-sizing: border-box;
+}
+
+* {
+  // Reset margin and font-size and font-weight
+  margin: 0;
+  font-size: 100%;
+  font-weight: normal;
+}
+
+img {
+  // make images block level elements
+  display: block;
+  // make images responsive
+  max-width: 100%;
+}
+
+/*---------------------------------------/*
+ # ELEMENTS
+/*---------------------------------------*/
+
+/*
+    Elements: Page
+    ---
+    Default markup for page level elements
+*/
+
+html {
+  font-size: calc($root-font-size/16 * 100%);
+  font-family: $font-family-primary;
+  line-height: 1.5;
+  color: $color-text;
+  background-color: $color-primary;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+/*
+    Customize the background color and color to match your design.
+*/
+
+::selection {
+  background-color: $color-accent;
+  color: $color-secondary;
+}
+
+::-webkit-scrollbar {
+width: 0;
+}
+
+/*
+    Elements: typography
+    ---
+    Default markup for typographic elements
+*/
+
+h1 {
+  font-size: $ms5;
+  font-weight: 700;
+  line-height: calc($baseline * 4);
+  margin-bottom: $space-m;
+
+  @include mq(bp1) {
+    font-size: $ms9;
+    line-height: calc($baseline * 6);
+  }
+
+  @include mq(bp2) {
+    font-size: $ms11;
+    line-height: calc($baseline * 8);
+  }
+}
+
+h2 {
+  font-size: $ms3;
+  font-weight: 700;
+  line-height: calc($baseline * 3);
+  margin-bottom: $space-m;
+}
+
+h3 {
+  font-size: $ms1;
+  font-weight: 700;
+  line-height: calc($baseline * 3);
+  margin-bottom: $space-m;
+}
+
+h4,
+h5,
+h6 {
+  font-size: $ms0;
+  font-weight: 700;
+  line-height: calc($baseline * 3);
+  margin-bottom: $space-m;
+}
+
+p,
+ol,
+ul,
+dl,
+table,
+address,
+figure {
+  margin-bottom: $space-m;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style-position: inside;
+}
+
+li ul,
+li ol {
+  margin-bottom: 0;
+}
+
+nav {
+  background-color: $color-secondary;
+  position: fixed;
+}
+
+blockquote {
+  font-family: $font-family-secondary;
+  font-style: italic;
+  font-size: $ms3;
+  line-height: calc($baseline * 4);
+  margin-bottom: $space-m;
+}
+
+table {
+  background-color: $color-secondary;
+  padding: .75rem;
+  border-radius: 6px;
+}
+
+th {
+  text-align: left;
+  color: $color-text-light;
+  font-weight: 500;
+  padding: 0rem 0.375rem;
+}
+
+td {
+  padding: 0.375rem;
+  font-weight: 700;
+}
+
+figcaption {
+  font-size: $ms-1;
+  line-height: calc($baseline * 2);
+  margin-top: $space-xs;
+  color: $color-text-extra-light;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: $color-border;
+  margin-bottom: $space-m;
+}
+
+a {
+  color: $color-accent;
+  transition: all 0.1 ease-in-out;
+  &:hover {
+    color: $color-accent;
+  }
+  &:visited {
+    color: $color-accent;
+  }
+  &:active {
+    color: $color-accent;
+  }
+}
+
+
+/*---------------------------------------/*
+ # OBJECTS
+/*---------------------------------------*/
+
+/*
+Objects: list reset
+---
+Resets the default list styles
+*/
+
+.o-list-reset {
+  list-style: none;
+  margin-left: 0;
+}
+
+.o-link-reset {
+  text-decoration: none;
+}
+
+.o-margin-reset {
+  margin: 0;
+}
+
+
+/*
+Object: Button reset
+---
+Small button reset object
+*/
+
+.o-button-reset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow: visible;
+  background: transparent;
+
+  /* inherit font & color from ancestor */
+  color: inherit;
+  font: inherit;
+
+  /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
+  line-height: inherit;
+
+  /* Corrects font smoothing for webkit */
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+
+  /* Corrects inability to style clickable `input` types in iOS */
+  -webkit-appearance: none;
+  // appearance: none;
+}
+
+/*
+    Objects: Row
+    ---
+    Creates a horizontal row with padding
+*/
+
+.o-row {
+  padding: $space-m $space-m 0;
+  display: flow-root;
+  &--xl {
+    @include mq(bp2) {
+      padding: $space-xl $space-xl $space-m;
+    }
+  }
+  &--nav {
+    background-color: $color-secondary;
+    color: $color-text;
+  }
+  &--primary {
+    background-color: $color-primary;
+    color: $color-text;
+  }
+  &--dark {
+    background-color: $color-text;
+    color: $color-secondary;
+  }
+}
+
+/*
+    Objects: Container
+    ---
+    Creates a horizontal container that sets de global max-width
+*/
+
+.o-container {
+  max-width: $container-max-width;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
+    Objects: Layout
+    ---
+    Creates a Layout with flexbox
+*/
+
+/*
+    Objects: Layout
+    ---
+    The layout object provides us with a column-style layout system. This object
+    contains the basic structural elements, but classes should be complemented
+    with width utilities
+*/
+
+.o-layout {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.o-layout__item {
+  flex-basis: 100%;
+}
+
+/* gutter modifiers, these affect o-layout__item too */
+
+.o-layout--gutter {
+  margin-left: calc($grid-gutter / -2);
+  margin-right: calc($grid-gutter / -2);
+}
+
+.o-layout--gutter > .o-layout__item {
+  padding-left: calc($grid-gutter / 2);
+  padding-right: calc($grid-gutter / 2);
+}
+
+/* reverse horizontal row modifier */
+
+.o-layout--row-reverse {
+  flex-direction: row-reverse;
+}
+
+/* Horizontal alignment modifiers*/
+
+.o-layout--justify-start {
+  justify-content: flex-start;
+}
+
+.o-layout--justify-end {
+  justify-content: flex-end;
+}
+
+.o-layout--justify-center {
+  justify-content: center;
+}
+
+.o-layout--justify-space-around {
+  justify-content: space-around;
+}
+
+.o-layout--justify-space-evenly {
+  justify-content: space-evenly;
+}
+
+.o-layout--justify-space-between {
+  justify-content: space-between;
+}
+
+/* Vertical alignment modifiers */
+
+.o-layout--align-start {
+  align-items: flex-start;
+}
+
+.o-layout--align-end {
+  align-items: flex-end;
+}
+
+.o-layout--align-center {
+  align-items: center;
+}
+
+.o-layout--align-baseline {
+  align-items: baseline;
+}
+
+/* Vertical alignment modifiers that only work if there is more than one flex item */
+
+.o-layout--align-content-start {
+  align-content: start;
+}
+
+.o-layout--align-content-end {
+  align-content: end;
+}
+
+.o-layout--align-content-center {
+  align-content: center;
+}
+
+.o-layout--align-content-space-around {
+  align-content: space-around;
+}
+
+.o-layout--align-content-space-between {
+  align-content: space-between;
+}
+
+/*---------------------------------------/*
+ # COMPONENTS
+/*---------------------------------------*/
+
+/*
+    Component: layout block
+    ---
+    A small component to demonstrate the layout items
+*/
+
+.c-layout-block {
+  background-color: LightGrey;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.c-layout-block--ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.c-nav {
+  padding: 1rem;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  @include mq(bp3) {
+    width: unset;
+    height: 100%;
+    left: 0;
+  }
+  &__list {
+    text-align: center;
+    @include mq(bp3) {
+    flex-direction: column;
+    height: 100%;
+    }
+  }
+  &__item {
+  }
+  &__link {
+    color: $color-text-extra-light;
+    padding: 1rem;
+  }
+}
+
+.c-stat-card {
+  gap: 0.5rem;
+  background-color: $color-secondary;
+  padding: .75rem;
+  border-radius: .375rem;
+  &__container {
+    gap: 0.5rem;
+    margin-bottom: $space-m;
+  }
+  &__stat-container {
+    gap: 0.5rem;
+  }
+  &__stat-item {
+    background-color: $color-primary-dark;
+    padding: .125rem .25rem;
+    border-radius: 3px;
+  }
+  &__stat {
+    margin: 0;
+  }
+  &__name {
+    margin: 0;
+  }
+}
+
+.c-profile-stat {
+  padding: 1rem .75rem;
+  &__container {
+    text-align: center;
+    margin-bottom: $space-m;
+  }
+  &__stat {
+    font-weight: 700;
+    margin: 0;
+  }
+  &__name {
+    color: $color-text-extra-light;
+    margin: 0;
+  }
+  &__placement {
+    font-weight: 700;
+    color: $color-accent;
+    margin: 0;
+  }
+}
+
+.c-history-table {
+  width: 100%;
+}
+
+/*---------------------------------------/*
+ # UTILITIES
+/*---------------------------------------*/
+
+
+
+/*
+    Utilities: Widths
+    ---
+    Width utility classes
+*/
+
+.u-accentuate {
+  color: $color-accent;
+}
+
+.u-flex-basis-auto {
+  flex-basis: auto;
+}
+
+// Loop through the different columns
+@each $column in $columns {
+  // Generate the grid classes
+  @each $denominator, $numerator in $column {
+    // Begin creating a numerator for our fraction up until we hit the
+    // denominator.
+    @for $numerator from 1 through $denominator {
+      // Build a class in the format `.u-4-of-6`
+      .u-#{$numerator}-of-#{$denominator} {
+        flex-basis: calc(($numerator / $denominator) * 100%) !important;
+      }
+    }
+  }
+}
+
+// Loop through the different breakpoints
+@each $breakpoint, $value in $breakpoints {
+  @include mq($value) {
+    // Loop through the different columns
+    @each $column in $columns {
+      // Generate the grid classes
+      @each $denominator, $numerator in $column {
+        // Begin creating a numerator for our fraction up until we hit the
+        // denominator.
+        @for $numerator from 1 through $denominator {
+          // Build a class in the format `.u-4-of-6-bp1`
+          .u-#{$numerator}-of-#{$denominator}-#{$breakpoint} {
+            flex-basis: calc(($numerator / $denominator) * 100%) !important;
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -1,18 +1,313 @@
-<!DOCTYPE html>
-<html lang="nl">
+<!doctype html>
+<html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>index</title>
-  <link rel="stylesheet" href="style/screen.css">
-  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-  <script src="script/datahandler.js"></script>
-  <script src="script/app.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>SoftTrainer</title>
+    <meta name="description" content="This is the SoftTrainer statistics page.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="favicon.icon" sizes="any">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <link rel="stylesheet" href="css/screen.css">
+
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+
+    <script src="script/datahandler.js"></script>
+    <script src="script/app.js"></script>
 </head>
 
 <body>
+    <header class="">
+        <div class="o-container">
+            <nav class="c-nav">
+                <ul class="c-nav__list o-list-reset o-layout o-layout--justify-space-between o-margin-reset">
+                    <li class="c-nav__item">
+                        <a class="c-nav__link o-link-reset" href="/power.html">power</a>
+                    </li>
+                    <li class="c-nav__item">
+                        <a class="c-nav__link o-link-reset" href="/add.html">add</a>
+                    </li>
+                    <li class="c-nav__item">
+                        <a class="c-nav__link o-link-reset" href="/target.html">target</a>
+                    </li>
+                    <li class="c-nav__item">
+                        <a class="c-nav__link c-nav__link--active o-link-reset" href="/index.html">stats</a>
+                    </li>
+                    <li class="c-nav__item">
+                        <a class="c-nav__link o-link-reset" href="/user.html">user</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="o-row o-row--xl">
+        <div class="o-container">
+            <h1>Hi, [username]<br><span class="">Welcome to SoftTrainer</span></h1>
+            <div class="o-layout o-layout--gutter o-layout--row-reverse">
+                <div class="o-layout__item u-1-of-3-bp3">
+                    <div class="o-layout o-layout--gutter c-profile-stat__container">
+                        <div class="o-layout__item c-profile-stat u-1-of-3">
+                            <p class="c-profile-stat__stat">103</p>
+                            <p class="c-profile-stat__name">Total targets hit</p>
+                            <p class="c-profile-stat__placement">#2 place</p>
+                        </div>
+                        <div class="o-layout__item c-profile-stat u-1-of-3">
+                            <p class="c-profile-stat__stat">1647</p>
+                            <p class="c-profile-stat__name">Highscore</p>
+                            <p class="c-profile-stat__placement">#4 place</p>
+                        </div>
+                        <div class="o-layout__item c-profile-stat u-1-of-3">
+                            <p class="c-profile-stat__stat">21</p>
+                            <p class="c-profile-stat__name">Total sessions</p>
+                            <p class="c-profile-stat__placement">#5 place</p>
+                        </div>
+                    </div>
+                    <div class="o-layout o-layout--justify-space-between">
+                        <h2>Last session</h2>
+                        <p class="u-accentuate">reload</p>
+                    </div>
+                    <div class="o-layout o-layout--justify-space-between c-stat-card__container">
+                        <div class="c-stat-card">
+                            <h3>Session</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">#3</p>
+                                    <p class="c-stat-card__name">course</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1:20</p>
+                                    <p class="c-stat-card__name">time</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">3059</p>
+                                    <p class="c-stat-card__name">score</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-stat-card">
+                            <h3>Hit time</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">#3</p>
+                                    <p class="c-stat-card__name">course</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1:20</p>
+                                    <p class="c-stat-card__name">time</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">3059</p>
+                                    <p class="c-stat-card__name">score</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-stat-card">
+                            <h3>Reload time</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">#3</p>
+                                    <p class="c-stat-card__name">course</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1:20</p>
+                                    <p class="c-stat-card__name">time</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">3059</p>
+                                    <p class="c-stat-card__name">score</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-stat-card">
+                            <h3>Targets</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">#3</p>
+                                    <p class="c-stat-card__name">course</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1:20</p>
+                                    <p class="c-stat-card__name">time</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">3059</p>
+                                    <p class="c-stat-card__name">score</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="o-layout o-layout--justify-space-between">
+                        <h2>Overall statistics</h2>
+                        <p class="u-accentuate">reload</p>
+                    </div>
+                    <div class="o-layout o-layout--justify-space-between c-stat-card__container">
+                        <div class="c-stat-card">
+                            <h3>Hit time</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">182ms</p>
+                                    <p class="c-stat-card__name">min</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1.2s</p>
+                                    <p class="c-stat-card__name">avg</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">4.8s</p>
+                                    <p class="c-stat-card__name">max</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-stat-card">
+                            <h3>Reload time</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">182ms</p>
+                                    <p class="c-stat-card__name">min</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1.2s</p>
+                                    <p class="c-stat-card__name">avg</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">4.8s</p>
+                                    <p class="c-stat-card__name">max</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="c-stat-card">
+                            <h3>Session time</h3>
+                            <div class="o-layout c-stat-card__stat-container">
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">182ms</p>
+                                    <p class="c-stat-card__name">min</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">1.2s</p>
+                                    <p class="c-stat-card__name">avg</p>
+                                </div>
+                                <div class="c-stat-card__stat-item">
+                                    <p class="c-stat-card__stat">4.8s</p>
+                                    <p class="c-stat-card__name">max</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="o-layout__item u-2-of-3-bp3">
+                    <div class="o-layout o-layout--justify-space-between">
+                        <h2>History</h2>
+                        <p class="u-accentuate">reload</p>
+                    </div>
+                    <table class="c-history-table js-history-table">
+                        <tr>
+                          <th>ID</th>
+                          <th>Device</th>
+                          <th>Action</th>
+                          <th>Parameters</th>
+                          <th>Elapsed</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>piezo</td>
+                            <td>hit</td>
+                            <td>{"value":1023}</td>
+                            <td>00:04:20:30</td>
+                        </tr>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 
 </html>
